@@ -1,21 +1,29 @@
 "use client"
 
 import type React from "react"
-
+import { login } from "@/../services/auth"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card } from "@/components/ui/card"
+import Image from "next/image"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log("Login attempt:", { email, password })
+
+    try {
+      const data = await login(username, password)
+      console.log("Login exitoso:", data)
+      localStorage.setItem("token", data.token)
+      window.location.href = "/dashboard"
+    } catch (err: any) {
+      alert(err.message)
+    }
   }
 
   return (
@@ -40,15 +48,15 @@ export default function LoginPage() {
 
       <div className="relative z-10 w-full max-w-md px-6">
         <div className="text-center mb-8">
-          <div
-            className="w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center shadow-lg"
-            style={{ backgroundColor: "#50745C" }}
-          >
-            <div className="text-white text-2xl font-bold">🌾</div>
-          </div>
-          <h1 className="text-3xl font-bold text-balance" style={{ color: "#0D5741" }}>
-            AgroManager
-          </h1>
+          <div className="w-100 h-30 mx-auto mb-4 relative rounded-2xl shadow-lg overflow-hidden">
+  <Image
+    src="/logo.svg"
+    alt="Logo Agro"
+    fill
+    style={{ objectFit: "cover" }}
+  />
+</div>
+
           <p className="text-lg mt-2 text-pretty" style={{ color: "#50745C" }}>
             Cultivando el futuro de tu negocio
           </p>
@@ -67,20 +75,17 @@ export default function LoginPage() {
 
             <div className="space-y-4">
               <div>
-                <Label htmlFor="email" className="text-sm font-medium" style={{ color: "#0D5741" }}>
-                  Correo Electrónico
+                <Label htmlFor="username" className="text-sm font-medium" style={{ color: "#0D5741" }}>
+                  Nombre de usuario
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="mt-1 border-2 focus:ring-2 focus:ring-opacity-50 bg-white/80"
-                  style={{
-                    borderColor: "#50745C",
-                    focusRingColor: "#50745C",
-                  }}
-                  placeholder="tu@email.com"
+                  style={{ borderColor: "#50745C", focusRingColor: "#50745C" }}
+                  placeholder="Tu usuario"
                   required
                 />
               </div>
@@ -95,10 +100,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="mt-1 border-2 focus:ring-2 focus:ring-opacity-50 bg-white/80"
-                  style={{
-                    borderColor: "#50745C",
-                    focusRingColor: "#50745C",
-                  }}
+                  style={{ borderColor: "#50745C", focusRingColor: "#50745C" }}
                   placeholder="••••••••"
                   required
                 />
