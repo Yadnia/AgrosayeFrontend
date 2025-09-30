@@ -33,8 +33,8 @@ export function Sidebar() {
   return (
     <div className="w-64 min-h-screen shadow-lg flex flex-col" style={{ backgroundColor: "#50745C" }}>
       {/* Logo grande */}
-      <div className="mx-4 mt-4 mb-6 bg-white rounded-xl p-4 shadow-md flex items-center justify-center">
-        <div className="relative w-full h-24">
+      <div className="mx-4 mt-2 mb-6 bg-white rounded-xl p-4 shadow-md flex items-center justify-center">
+        <div className="relative w-full h-20">
           <Image
             src="/logo.svg"
             alt="Logo AgroManager"
