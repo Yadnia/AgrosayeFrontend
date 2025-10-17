@@ -1,6 +1,23 @@
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Calendar, Clock, User } from "lucide-react"
 
 const activities = [
@@ -75,6 +92,34 @@ const getPriorityColor = (priority: string) => {
 }
 
 export function ActivitiesContainer() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    status: "Pendiente",
+    priority: "Media",
+    assignee: "",
+    dueDate: "",
+    time: "",
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log("Nueva actividad:", formData)
+    // Here you would typically add the activity to your state or send to an API
+    setIsDialogOpen(false)
+    // Reset form
+    setFormData({
+      title: "",
+      description: "",
+      status: "Pendiente",
+      priority: "Media",
+      assignee: "",
+      dueDate: "",
+      time: "",
+    })
+  }
+
   return (
     <div className="space-y-6">
       {/* Header with Add Button */}
@@ -82,11 +127,121 @@ export function ActivitiesContainer() {
         <div>
           <p className="text-gray-600">Gestiona todas las actividades de tu negocio</p>
         </div>
-        <Button className="gap-2" style={{ backgroundColor: "#50745C" }}>
+        <Button className="gap-2" style={{ backgroundColor: "#50745C" }} onClick={() => setIsDialogOpen(true)}>
           <Plus size={16} />
           Nueva Actividad
         </Button>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[525px]">
+          <DialogHeader>
+            <DialogTitle>Nueva Actividad</DialogTitle>
+            <DialogDescription>
+              Completa los detalles de la nueva actividad. Haz clic en guardar cuando termines.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="title">Título</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Nombre de la actividad"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Descripción</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Describe la actividad"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="status">Estado</Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => setFormData({ ...formData, status: value })}
+                  >
+                    <SelectTrigger id="status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pendiente">Pendiente</SelectItem>
+                      <SelectItem value="En progreso">En progreso</SelectItem>
+                      <SelectItem value="Programada">Programada</SelectItem>
+                      <SelectItem value="Completada">Completada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="priority">Prioridad</Label>
+                  <Select
+                    value={formData.priority}
+                    onValueChange={(value) => setFormData({ ...formData, priority: value })}
+                  >
+                    <SelectTrigger id="priority">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Baja">Baja</SelectItem>
+                      <SelectItem value="Media">Media</SelectItem>
+                      <SelectItem value="Alta">Alta</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="assignee">Asignado a</Label>
+                <Input
+                  id="assignee"
+                  value={formData.assignee}
+                  onChange={(e) => setFormData({ ...formData, assignee: e.target.value })}
+                  placeholder="Nombre de la persona"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="dueDate">Fecha</Label>
+                  <Input
+                    id="dueDate"
+                    type="date"
+                    value={formData.dueDate}
+                    onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="time">Hora</Label>
+                  <Input
+                    id="time"
+                    type="time"
+                    value={formData.time}
+                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" style={{ backgroundColor: "#50745C" }}>
+                Guardar Actividad
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Activities Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

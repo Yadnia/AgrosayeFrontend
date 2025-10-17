@@ -1,7 +1,23 @@
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Package, AlertTriangle, CheckCircle, Clock } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Package, AlertTriangle, CheckCircle, Clock, Plus } from "lucide-react"
 
 interface InventoryItem {
   id: string
@@ -151,14 +167,213 @@ const getStatusText = (status: string) => {
 }
 
 export function InventoryContainer() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "",
+    quantity: "",
+    unit: "",
+    minStock: "",
+    maxStock: "",
+    location: "",
+    supplier: "",
+    cost: "",
+    status: "in-stock" as const,
+  })
+
   const totalItems = inventoryItems.length
   const inStockItems = inventoryItems.filter((item) => item.status === "in-stock").length
   const lowStockItems = inventoryItems.filter((item) => item.status === "low-stock").length
   const outOfStockItems = inventoryItems.filter((item) => item.status === "out-of-stock").length
   const totalValue = inventoryItems.reduce((sum, item) => sum + item.quantity * item.cost, 0)
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log("New inventory item:", formData)
+    // Reset form and close dialog
+    setFormData({
+      name: "",
+      category: "",
+      quantity: "",
+      unit: "",
+      minStock: "",
+      maxStock: "",
+      location: "",
+      supplier: "",
+      cost: "",
+      status: "in-stock",
+    })
+    setIsDialogOpen(false)
+  }
+
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Inventario</h2>
+          <p className="text-sm text-gray-600 mt-1">Gestiona tu inventario agrícola</p>
+        </div>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-[#243E36] hover:bg-[#1a2d28] text-white">
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Item
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Agregar Nuevo Item al Inventario</DialogTitle>
+              <DialogDescription>Completa la información del nuevo item de inventario</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nombre del Item</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Ej: Semillas de Tomate"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category">Categoría</Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) => setFormData({ ...formData, category: value })}
+                    required
+                  >
+                    <SelectTrigger id="category">
+                      <SelectValue placeholder="Seleccionar categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Semillas">Semillas</SelectItem>
+                      <SelectItem value="Fertilizantes">Fertilizantes</SelectItem>
+                      <SelectItem value="Pesticidas">Pesticidas</SelectItem>
+                      <SelectItem value="Herramientas">Herramientas</SelectItem>
+                      <SelectItem value="Riego">Riego</SelectItem>
+                      <SelectItem value="Otros">Otros</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="quantity">Cantidad</Label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    value={formData.quantity}
+                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                    placeholder="0"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="unit">Unidad</Label>
+                  <Input
+                    id="unit"
+                    value={formData.unit}
+                    onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                    placeholder="kg, litros, unidades"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cost">Costo Unitario ($)</Label>
+                  <Input
+                    id="cost"
+                    type="number"
+                    step="0.01"
+                    value={formData.cost}
+                    onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="minStock">Stock Mínimo</Label>
+                  <Input
+                    id="minStock"
+                    type="number"
+                    value={formData.minStock}
+                    onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
+                    placeholder="0"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxStock">Stock Máximo</Label>
+                  <Input
+                    id="maxStock"
+                    type="number"
+                    value={formData.maxStock}
+                    onChange={(e) => setFormData({ ...formData, maxStock: e.target.value })}
+                    placeholder="0"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="location">Ubicación</Label>
+                <Input
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  placeholder="Ej: Almacén A - Estante 1"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="supplier">Proveedor</Label>
+                <Input
+                  id="supplier"
+                  value={formData.supplier}
+                  onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                  placeholder="Nombre del proveedor"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="status">Estado</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value: any) => setFormData({ ...formData, status: value })}
+                  required
+                >
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Seleccionar estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="in-stock">En Stock</SelectItem>
+                    <SelectItem value="low-stock">Stock Bajo</SelectItem>
+                    <SelectItem value="out-of-stock">Sin Stock</SelectItem>
+                    <SelectItem value="overstocked">Sobrestock</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
+                  Cancelar
+                </Button>
+                <Button type="submit" className="flex-1 bg-[#243E36] hover:bg-[#1a2d28] text-white">
+                  Agregar Item
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>

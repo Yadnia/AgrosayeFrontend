@@ -1,5 +1,23 @@
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Plus } from "lucide-react"
 
 const crops = [
   {
@@ -109,12 +127,190 @@ const getHealthColor = (health: string) => {
 }
 
 export function CropsContainer() {
+  const [open, setOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    variety: "",
+    plantingDate: "",
+    expectedHarvest: "",
+    area: "",
+    status: "",
+    health: "",
+    wateringSchedule: "",
+    fertilizer: "",
+  })
+
   const totalArea = crops.reduce((sum, crop) => sum + Number.parseFloat(crop.area), 0)
   const readyForHarvest = crops.filter((crop) => crop.status === "Listo para cosecha").length
   const healthyCrops = crops.filter((crop) => crop.health === "Excelente").length
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log("Nuevo cultivo:", formData)
+    // Here you would typically add the crop to your state/database
+    setOpen(false)
+    setFormData({
+      name: "",
+      variety: "",
+      plantingDate: "",
+      expectedHarvest: "",
+      area: "",
+      status: "",
+      health: "",
+      wateringSchedule: "",
+      fertilizer: "",
+    })
+  }
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">Mis Cultivos</h2>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-green-600 hover:bg-green-700">
+              <Plus className="mr-2 h-4 w-4" />
+              Nuevo Cultivo
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Agregar Nuevo Cultivo</DialogTitle>
+              <DialogDescription>
+                Completa la información del nuevo cultivo para agregarlo a tu sistema.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nombre del Cultivo</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="ej. Tomates"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="variety">Variedad</Label>
+                  <Input
+                    id="variety"
+                    value={formData.variety}
+                    onChange={(e) => setFormData({ ...formData, variety: e.target.value })}
+                    placeholder="ej. Cherry"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="plantingDate">Fecha de Plantación</Label>
+                  <Input
+                    id="plantingDate"
+                    type="date"
+                    value={formData.plantingDate}
+                    onChange={(e) => setFormData({ ...formData, plantingDate: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="expectedHarvest">Cosecha Esperada</Label>
+                  <Input
+                    id="expectedHarvest"
+                    type="date"
+                    value={formData.expectedHarvest}
+                    onChange={(e) => setFormData({ ...formData, expectedHarvest: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="area">Área (hectáreas)</Label>
+                <Input
+                  id="area"
+                  value={formData.area}
+                  onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                  placeholder="ej. 2.5"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="status">Estado</Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => setFormData({ ...formData, status: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar estado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Germinando">Germinando</SelectItem>
+                      <SelectItem value="Creciendo">Creciendo</SelectItem>
+                      <SelectItem value="Floración">Floración</SelectItem>
+                      <SelectItem value="Madurando">Madurando</SelectItem>
+                      <SelectItem value="Listo para cosecha">Listo para cosecha</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="health">Salud</Label>
+                  <Select
+                    value={formData.health}
+                    onValueChange={(value) => setFormData({ ...formData, health: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar salud" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Excelente">Excelente</SelectItem>
+                      <SelectItem value="Buena">Buena</SelectItem>
+                      <SelectItem value="Regular">Regular</SelectItem>
+                      <SelectItem value="Mala">Mala</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="wateringSchedule">Programa de Riego</Label>
+                <Input
+                  id="wateringSchedule"
+                  value={formData.wateringSchedule}
+                  onChange={(e) => setFormData({ ...formData, wateringSchedule: e.target.value })}
+                  placeholder="ej. Diario, Cada 2 días"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="fertilizer">Fertilizante</Label>
+                <Input
+                  id="fertilizer"
+                  value={formData.fertilizer}
+                  onChange={(e) => setFormData({ ...formData, fertilizer: e.target.value })}
+                  placeholder="ej. NPK 10-10-10"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                  Agregar Cultivo
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
